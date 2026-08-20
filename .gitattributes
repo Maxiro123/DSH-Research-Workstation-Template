@@ -1,0 +1,24 @@
+# Line-ending normalization.
+# Scripts with shebangs MUST stay LF on every platform — a CRLF shebang
+# (`#!/usr/bin/env bash\r`) breaks macOS/Linux execution. core.autocrlf=true
+# on Windows would otherwise rewrite them on checkout.
+
+* text=auto
+
+# Executable scripts / code: always LF, regardless of platform
+*.sh  text eol=lf
+*.js  text eol=lf
+*.py  text eol=lf
+*.cmd text eol=lf
+*.ps1 text eol=lf
+
+# Data / docs: LF for consistency
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+
+# Binary-safe
+*.png  binary
+*.exe  binary
+*.zip  binary

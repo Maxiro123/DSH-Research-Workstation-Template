@@ -1,0 +1,25 @@
+# DSH Research Workstation Template — .gitignore
+
+# Runtime / user data
+.dsh-research/reports/*.md
+.dsh-research/*.json.bak
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Archives (keep the repo clean; releases live on the Releases page)
+*.zip
+*.tar.gz
