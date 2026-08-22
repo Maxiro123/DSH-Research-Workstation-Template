@@ -82,7 +82,7 @@ EOF
     if python3 -c "import fitz, pdfplumber" >/dev/null 2>&1; then
       echo "    OK: python3 + pymupdf/pdfplumber 已就绪"
     else
-      echo "    WARNING: 缺少 pymupdf/pdfplumber，请执行: python3 -m pip install pymupdf pdfplumber" >&2
+      echo "    WARNING: 缺少 pymupdf/pdfplumber，请执行: python3 -m pip install pymupdf pdfplumber zstandard（zstandard 仅 'mem ingest' 需要）" >&2
     fi
   else
     echo "    WARNING: PATH 中未找到 python3，pdfread 无法运行。" >&2

@@ -28,6 +28,20 @@ try {
     $OutputEncoding = [System.Text.UTF8Encoding]::new()
 } catch { }
 
+# Probes run a native command and discard all output; only the exit code is
+# checked. On Windows PowerShell 5.1, native stderr is surfaced as error
+# records, so with $ErrorActionPreference = 'Stop' a probe whose command
+# FAILS on purpose (e.g. `python -c "import fitz"` when pymupdf is missing)
+# would be promoted to a fatal error and abort the whole install before its
+# WARNING can even print. Probe inside a local 'Continue' scope instead and
+# let the exit code decide.
+function Test-CommandOk {
+    param([scriptblock]$Command)
+    $ErrorActionPreference = 'Continue'
+    & $Command 2>$null | Out-Null
+    return ($LASTEXITCODE -eq 0)
+}
+
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PresetSrc = Join-Path $ScriptDir 'preset'
 $ToolsSrc  = Join-Path $ScriptDir 'tools'
@@ -79,15 +93,19 @@ try {
 
         # Dependency checks so tools fail loudly at install time, not at first use.
         if (Get-Command node -ErrorAction SilentlyContinue) {
-            & node -e "require('node:sqlite')" 2>$null
-            if ($LASTEXITCODE -eq 0) { Write-Host "    OK: node $(node -v) (supports node:sqlite)" -ForegroundColor Green }
-            else { Write-Host "    WARNING: node $(node -v) is too old — mem requires Node >= 22.13 (or 23.4+)." -ForegroundColor Yellow }
+            if (Test-CommandOk { node -e "require('node:sqlite')" }) {
+                Write-Host "    OK: node $(node -v) (supports node:sqlite)" -ForegroundColor Green
+            } else {
+                Write-Host "    WARNING: node $(node -v) is too old — mem requires Node >= 22.13 (or 23.4+)." -ForegroundColor Yellow
+            }
         } else { Write-Host "    WARNING: 'node' not found on PATH — mem will not run (needs Node >= 22.13)." -ForegroundColor Yellow }
 
         if (Get-Command python -ErrorAction SilentlyContinue) {
-            & python -c "import fitz, pdfplumber" 2>$null
-            if ($LASTEXITCODE -eq 0) { Write-Host "    OK: python + pymupdf/pdfplumber ready" -ForegroundColor Green }
-            else { Write-Host "    WARNING: pymupdf/pdfplumber missing — run: python -m pip install pymupdf pdfplumber" -ForegroundColor Yellow }
+            if (Test-CommandOk { python -c "import fitz, pdfplumber" }) {
+                Write-Host "    OK: python + pymupdf/pdfplumber ready" -ForegroundColor Green
+            } else {
+                Write-Host "    WARNING: pymupdf/pdfplumber missing — run: python -m pip install pymupdf pdfplumber zstandard (zstandard only for 'mem ingest')" -ForegroundColor Yellow
+            }
         } else { Write-Host "    WARNING: 'python' not found on PATH — pdfread will not run." -ForegroundColor Yellow }
     }
 
