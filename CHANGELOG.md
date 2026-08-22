@@ -5,6 +5,8 @@
 
 ## [未发布]
 
+## [0.1.1] - 2026-08-22
+
 ### 修复
 - `install-windows.ps1`：修复 Windows PowerShell 5.1 下依赖检测命令失败（stderr 输出）被 `$ErrorActionPreference='Stop'` 提升为致命错误、导致安装中断并以退出码 1 退出的问题（探测改为局部 `Continue` 作用域，仅按退出码判定；缺失依赖时正确输出 WARNING 而不是崩溃）。
 - `install-windows.ps1`：修复中文 Windows PowerShell 5.1 下脚本被按 ANSI 解析导致的中文乱码（文件改为 UTF-8 with BOM）。
